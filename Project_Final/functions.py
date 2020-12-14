@@ -174,8 +174,9 @@ def modify(_conn, username):
             cur = _conn.cursor()
             cur.execute(sql, (username, pick,))
             rows = cur.fetchall()
+            _conn.commit()
             print(pick, "has been added to favoriteList")
-            exit()
+            main(username)
         if answer == '2':
             delete = input(
                 "\nWhat would you like to delete from your list? : ")
@@ -185,14 +186,14 @@ def modify(_conn, username):
             rows = cur.fetchall()
             if len(rows) == 0:
                 print("\nThe Movie/Show you have entered is not in your favorite list")
-                exit()
+                main(username)
             else:
                 take = """ DELETE FROM favoriteList WHERE f_movie_show = ? AND f_userid IN (SELECT userid from UserInfo, favoriteList WHERE username = ? AND userid = f_userid)"""
                 cur = _conn.cursor()
                 cur.execute(take, (delete, username))
                 _conn.commit()
                 print(delete, "has been successfully removed")
-                exit()
+                main(username)
     except Error as e:
         print(e)
         print("++++++++++++++++++++++++++++++++++")
@@ -432,8 +433,7 @@ def recommend(_conn, username):
                                               f_userid = userid AND
                                               username = ?
                                         GROUP BY v_genre
-                                        ORDER BY num DESC
-                                        LIMIT 1))
+                                        ORDER BY num DESC))
                 EXCEPT
                 SELECT v_title, v_genre
                 FROM V1,favoriteList, UserInfo
